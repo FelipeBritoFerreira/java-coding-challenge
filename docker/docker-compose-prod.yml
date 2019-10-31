@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  db:
+    container_name: mysql_product
+    image: mysql:5.7.27
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'product'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '33066:3306'
+    expose:
+      - '3306'
+    volumes:
+      - db:/var/lib/mysql
+
+  product:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "9001:8080"
+    depends_on:
+      - db
+    links:
+      - db
+
+
+volumes:
+  db:
