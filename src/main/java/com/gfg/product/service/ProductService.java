@@ -3,7 +3,6 @@ package com.gfg.product.service;
 import com.gfg.product.entity.Product;
 import com.gfg.product.entity.Seller;
 import com.gfg.product.exception.ResourceNotFoundException;
-import com.gfg.product.notification.EmailSender;
 import com.gfg.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +15,16 @@ public class ProductService {
 
     private SellerService sellerService;
 
-    private EmailSender emailSender;
+    private NotificationService notificationService;
 
     public ProductService(
             ProductRepository repository,
             SellerService sellerService,
-            EmailSender emailSender
+            NotificationService notificationService
     ) {
         this.repository = repository;
         this.sellerService = sellerService;
-        this.emailSender = emailSender;
+        this.notificationService = notificationService;
     }
 
     public Product getByUuid(String productUuid) {
@@ -43,6 +42,7 @@ public class ProductService {
     }
 
     public Product updateProductByUuid(String uuid, Product product) {
+
         Product originalProduct = getByUuid(uuid);
         if (originalProduct == null) {
             throw new ResourceNotFoundException("Product", "UUID", uuid);
@@ -51,10 +51,9 @@ public class ProductService {
         product.setId(originalProduct.getId());
         mapSellerToProduct(product, product.getSeller().getUuid());
 
-
-        //if stock changed, send notification email
+        //if stock changes, send notification by email and/or sms
         if (Math.abs(product.getStock() - originalProduct.getStock()) > 0) {
-            emailSender.sendPriceChangeWarning(product);
+            notificationService.notificateStockChange(product);
         }
 
         return repository.save(product);

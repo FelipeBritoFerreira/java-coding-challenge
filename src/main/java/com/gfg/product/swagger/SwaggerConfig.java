@@ -33,7 +33,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("Product Rest API")
                 .description("REST API for Product and Seller")
-                .version("1.0.0")
+                .version("1.1.0")
                 .build();
     }
 }
